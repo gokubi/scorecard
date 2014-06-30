@@ -1,0 +1,741 @@
+<apex:page controller="ScorecardController" showHeader="false" standardStylesheets="false" title="Metrics Scorecard - Salesforce Foundation">
+    
+    <!-- INCUDE JQUERY -->
+    <apex:includescript value="{!URLFOR($Resource.jQuery, 'jQuery/jquery-1.8.3.min.js')}" />
+
+    <!-- INCUDE FANCYBOX -->
+    <!--    
+    <apex:styleSheet value="{!URLFOR($Resource.lightbox, 'fancyapps-fancyBox-3a66a9b/source/jquery.fancybox.css?v=2.0.6')}" />
+    <apex:includeScript value="{!URLFOR($Resource.lightbox, 'fancyapps-fancyBox-3a66a9b/source/jquery.fancybox.pack.js?v=2.0.6')}" />   
+    -->
+
+    <!-- INCUDE HIGHCHARTS -->
+    <!--
+    <apex:includeScript value="{!URLFOR($Resource.highcharts, 'js/highcharts.js')}" />   
+    <apex:includeScript value="{!URLFOR($Resource.highcharts, 'js/modules/exporting.js')}" />
+
+    <apex:includeScript value="{!URLFOR($Resource.validate, 'jquery.validate.min.js')}" />   
+    -->
+
+    <!-- INCUDE TWITTER Bootstrap -->
+    <!--<apex:styleSheet value="{!URLFOR($Resource.Bootstrap311, 'bootstrap-3.1.1-dist/css/bootstrap.min.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.Bootstrap311, 'bootstrap-3.1.1-dist/js/bootstrap.min.js')}"/>-->
+    <apex:includeScript value="{!URLFOR($Resource.bootstrap, 'js/bootstrap.min.js')}" />   
+	<apex:styleSheet value="{!URLFOR($Resource.bootstrap, 'css/bootstrap.min.css')}" />
+ 
+    <head><title>Metrics Scorecard - Salesforce Foundation</title></head>
+    <style>
+    a:link {text-decoration:none;}
+    a:visited {text-decoration:none;}
+    a:hover {text-decoration:none;}
+    a:active {text-decoration:none;}
+    tr.dataRow .prettyLink {color:#1797C0;}
+    #pageHeader
+    {
+        margin-bottom:2px;
+    }
+    .parentContainer
+    {
+        width:440px;
+        padding-right:12px;
+    }
+    tr .popover-content 
+    {
+        font-size:16px;
+    }   
+    tr.dataRow
+    {
+        font-family:Arial,Arial,Helvetica,sans-serif;
+        font-size:14px;
+        color:#666666;
+    }
+    tr.dataRow td {
+        vertical-align:middle;
+    }
+    tr.dataRow .entryTitle
+    {
+        font-size:18px;
+        color:#1797C0;
+        display:table-cell;
+    }
+    tr.level0 .entryTitle 
+    { 
+        font-size:20px; 
+        height:28px; 
+    }
+    tr.dataRow .entryTitle a
+    {
+        color:#1797C0;
+        padding-right:10px;
+    }   
+    tr.dataRow .entryDescription
+    {
+        padding:0px 0px 5px 2px;
+        font-size:14px;
+        color:#666666;
+    }
+    tr.dataRow .feedPhoto{
+        vertical-align:middle;
+        height:70px;
+        width:60px;
+    }
+    tr.dataRow .feedBody
+    {
+        padding:5px 0px 8px 0px;
+        font-size:13px;
+        color:#666666;
+    }
+    tr.dataRow .feedDate
+    {
+        font-size:10px;
+        color:#7D7D84;
+    }
+    tr.dataRow .feedUsername a
+    {
+        font-size:14px;
+        color:#999999;
+    }
+    tr.dataRow td.valContainer
+    {
+        text-align: right;
+        font-size:18px;
+        line-height: 20px;
+    }
+    tr.dataRow td.valContainer a
+    {
+        color:#666666;
+    }
+    tr.dataRow td.valContainer
+    {
+        text-align: right;
+        font-size:18px;
+        line-height: 20px;
+    }
+    tr.dataRow td.sourceContainer
+    {
+        padding-left:10px;
+    }
+    tr.dataRow td.sourceContainer a
+    {
+        font-size:12px;
+    }
+    tr.dataRow .feedBody a,
+    tr.dataRow .feedDate a {
+        cursor: pointer;
+    }
+
+    tr.level0 td.titleContainer { padding-left:10px; font-size:110%; }
+    tr.level1 td.titleContainer { padding-left:36px; }
+    tr.level2 td.titleContainer {  padding-left:62px; }
+    tr.level3 td.titleContainer { padding-left:88px; }
+    tr.level4 td.titleContainer {  padding-left:114px; }
+    
+    tr.level1, tr.level2, tr.level3 { 
+        background-color:white;
+        width:100%;
+    }   
+    .valContainer img {
+        padding:0 8px 4px 5px;
+    }
+    #chatterBox {
+        width:600px;
+        height:500px;
+    }
+    #chatterBox iframe {
+        width:100%;
+        height:400px;
+    }
+    .sfPageBlock {
+        background-color: #F8F8F8;
+        background-image: none;
+        background-position: 0% 100%;
+        background-repeat: no-repeat;
+        border-bottom-color: #EAEAEA;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-left-color: #EAEAEA;
+        border-left-style: solid;
+        border-left-width: 1px;
+        border-right-color: #EAEAEA;
+        border-right-style: solid;
+        border-right-width: 1px;
+        border-top-color: #222;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-top-style: solid;
+        border-top-width: 3px;
+        clear: both;
+        color: #222;
+        display: block;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        line-height: 20px;
+        margin: 0 0 10px 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    /* be responsive to narrow widths by hiding columns */
+    @media (max-width: 1150px) {
+        .chatterContainer, .feedPhoto {
+            display: none;
+        }
+    }
+    @media (max-width: 850px) {
+        .sourceContainer {
+            display: none;
+        }
+    }
+
+    </style>
+
+    <script type="text/javascript" >
+        var j$ = jQuery.noConflict();
+        var chartData;
+        var visiblePopover;
+
+        j$(document).ready(function() {
+
+/*
+            j$(".various").fancybox({
+                maxWidth    : 900,
+                maxHeight   : 800,
+                fitToView   : false,
+                autoSize    : true,
+                closeClick  : false,
+                openEffect  : 'none',
+                closeEffect : 'none',
+            });
+
+            // initialize the target popovers
+            j$(".forecast a[rel=popover]").each( function() {
+                j$(this).popover( 
+                    { content: j$(this).parent().find("[data-field^='Forecast']").text() } 
+                )
+              .click(function(e) {
+                 e.preventDefault();
+            });
+            });
+          j$(".valContainer .forecastSpan").hide();
+*/
+            j$("#entryFilter").val('{!filter}');
+            showRowsForFilter( j$("#entryFilter").val() );
+
+            j$("#entryFilter").change(function() {
+                showRowsForFilter( j$(this).val() );
+            });
+
+            j$("#monthFilter").val('{!timeframe}');
+            j$("#monthFilter").change(function() {
+                var newUrl = document.location.origin + document.location.pathname + 
+                    '?filter=' + j$("#entryFilter").val() + '&timeframe=' + j$(this).val();
+                document.location.href = newUrl;
+            });
+
+            // set the iframe target in the modal window
+            j$('[data-target="#chatterBox"]').click(function(e) {
+                j$('#chatterBox .modal-iframe').attr('src', j$(this).attr('data-url'));
+                j$('#chatterBox h4').text('Chatter Feed: ' + j$(this).closest('.dataRow').data('name'));
+            });
+
+/*
+            // open modal form for editing
+            j$(".dataRow .editButton").click(function() {
+                var frm = j$("#editBox");
+                var row = j$(this).closest(".dataRow");
+                
+                // copy the record id and other row data to the form
+                j$.each( j$(row).data(), function(k, v){
+                    j$(frm).data(k, v);
+                });
+
+                // set the form header to the record full name
+                j$(frm).find('.form-heading').text(j$(row).data('name'));
+
+                // hide extra number fields
+                j$(frm).find("input[data-numtype='" + j$(frm).data('numtype') + "']").show();
+                j$(frm).find("input[data-numtype][data-numtype!='" + j$(frm).data('numtype') + "']").hide();
+
+                // get all the items with a data-field attribute and
+                // put their text() of each into val() of matching controls on the form object
+                j$(row).find('[data-field]:visible').each(function() {
+                    var fld = j$(this).data("field");
+
+                    // get value - if object is an anchor, gets the href instead of text
+                    var val = j$(this).is("a") ? j$(this).attr('href') : j$(this).text().trim();
+
+                    j$(frm).find("input[name='" + fld + "'],textarea[name='" + fld + "']").val( val );
+                });
+            });
+
+            // set focus to first box in edit form
+            j$("#editBox").on('shown', function () {
+              j$('input:text:visible:first', this).focus();
+            });
+
+            // save form data
+            j$("#editBox #saveButton").click(function() {
+                var frm = j$("#editBox");
+                // UNDONE: display some sort of spinner
+                
+                // create a new sObject data structure with the Id set to this object
+                var obj = new Object();
+                obj["Id"] = j$(frm).data('id');
+
+                // get each value from the form input controls that are visible and put them into the object
+                j$(frm).find('input[name]:visible, textarea[name]:visible').each(function() {
+                    var val;
+                    var str = j$(this).val().trim();
+
+                    // convert numbers and dates when the controls have class "number" or "date" (also strip commas and $ and fix %)
+                    if ( j$(this).is(".number") ) {
+                        var pct = str.indexOf('%');
+                        val = parseFloat( str.replace(/[$,%]/g, "") );
+                        if (pct > 0)
+                            val = val / 100;
+                    } else if ( j$(this).is(".date") ) {
+                        val = new Date(Date.parse(str));
+                    } else if (str != '') {
+                        val = str;
+                    }
+
+                    // set the value if we found one                    
+                    if (val && val != NaN) 
+                        obj[ j$(this).attr('name') ] = val;
+                });
+
+                // save using JS remoting
+                console.log('SAVING: \n' + JSON.stringify(obj));
+                Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.ScorecardController.saveEntry}', obj,
+                function(result, event){
+                        // UNDONE: turn off spinner
+
+                   if (event.status) {
+                            console.log(result);
+
+                            // update fields on page
+                            var frm = j$("#editBox");
+                            var row = j$(".dataRow[data-id='" + j$(frm).data('id') + "']");
+                            
+                            j$(frm).find('input[name]:visible, textarea[name]:visible').each(function() {
+                                var target = j$(row).find("[data-field='" + j$(this).attr('name') + "']");
+                                var str = j$(this).val();
+
+                                if ( j$(target).is("a") )
+                                    j$(target).attr('href', str);
+                                else
+                                    j$(target).text(str);
+
+                                // clear out the form for next time
+                                j$(this).val("");
+                            }); 
+
+                            // close the edit box
+                            j$('#editBox').modal('hide');
+
+                   } else if (event.type === 'exception') {
+                            // UNDONE: display error in dialog
+                      console.log(event.message + '\n' + event.where);
+                   } else {
+                      console.log(event.message);
+                   }
+                }, 
+                {escape: true}
+              );
+            });
+*/              
+// need function that for a form object (form or div) gets values of all the form input controls that are visible
+// and copies their values back to text of fields with data-field attribute in a specified object
+// also copies back data-record-id to that attribute
+
+            //OLD:
+         // j$(".sidelink").click(function(){
+         //     j$(".activeNav").removeClass("activeNav");
+         //     j$(this).addClass("activeNav");
+         // });
+
+            // set up popovers
+//          j$("a[rel=popover]").popover();
+
+            // load data for each row into popovers
+            j$(".forecast a[rel=popover]").each( function() {
+                j$(this).popover({
+                    trigger: ('ontouchstart' in document.documentElement) ? 'click' : 'hover',
+                   content: 
+                    'Target Value: <b>' + j$(this).closest('tr').find("[data-field^='Forecast']").text() + '</b><br/>' +
+                    'Actual Value: <b>' + j$(this).closest('tr').find("[data-field^='Actual']").text() + '</b><br />' +
+                    'Actual / Target = <b>' + j$(this).parent().find("span").text() + '</b>'
+                });
+            });
+            j$(".pctChange a[rel=popover]").each( function() {
+                j$(this).popover({
+                    trigger: ('ontouchstart' in document.documentElement) ? 'click' : 'hover',
+                   content: 
+                    'Prev month: <b>' + j$(this).closest('tr').find("[data-field^='Previous']").text() + '</b><br/>' +
+                    'This month: <b>' + j$(this).closest('tr').find("[data-field^='Actual']").text() + '</b><br />' +
+                    'Change = <b>' + j$(this).parent().find("span").text() + '</b>'
+                });
+            });
+
+            // hide popover when another is clicked
+            j$("[rel='popover']").click( function() {
+
+              // check if the one clicked is now shown
+              if (j$(this).data('popover').tip().hasClass('in')) {
+
+                // if another was showing, hide it
+                visiblePopover && visiblePopover.popover('hide');
+
+                // then store reference to current popover
+                visiblePopover = j$(this);
+
+              } else { // if it was hidden, then nothing must be showing
+                visiblePopover = '';
+              }
+            });
+
+//          j$(".pctChange").click(function(){
+//              j$(this).find('a[rel=popover]').popover('toggle');
+//              j$(this).find("a[rel=popover]").popover('show');
+//              j$("#chartBox").modal('show');
+
+                
+
+//              console.log(j$(this).closest("tr").data('previous'));
+//          });
+/*
+            j$("#chartBox").on('shown', function () {
+//              if ( j$(this).find('.chartB').text() == '') 
+
+                    var highChart = new Highcharts.Chart({
+                    chart: {
+                        renderTo: 'chartDiv',
+                        type: 'line'
+                    },
+                    title: {
+                         text: null
+                    },
+                    // subtitle: {
+                    //     text: 'Source: WorldClimate.com'
+                    // },
+                    xAxis: {
+                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Temperature (°C)'
+                        }
+                    },
+                    tooltip: {
+                        enabled: false,
+                        formatter: function() {
+                            return '<b>'+ this.series.name +'</b><br/>'+
+                                this.x +': '+ this.y +'°C';
+                        }
+                    },
+                    plotOptions: {
+                        line: {
+                            dataLabels: {
+                                enabled: true
+                            },
+                            enableMouseTracking: false
+                        }
+                    },
+                    series: [{
+                        name: 'Tokyo',
+                        data: [7.0, 6.9, 9.5, 14.5, 18.4, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
+                    }, {
+                        name: 'London',
+                        data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
+                    }]
+                });
+            });
+*/
+      });
+
+        function showRowsForFilter(cName) {
+            if (cName == 'All') {
+            j$('tr.dataRow').show(300);
+            } else if (cName == 'Key') {
+            j$('tr.dataRow').hide();
+               j$('tr[data-key="true"]').show(200);
+           } else {
+            j$('tr.dataRow').hide();
+               j$('tr[data-filter="' + cName + '"]').show(200);
+            }
+        }
+    </script>
+    
+    <!-- HEADER -->
+    <div style="margin:10px;">
+    <div id="pageHeader">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:80px;">
+                    <!--<img src="{!URLFOR($Resource.pricelist, 'logo.png')}" width="76px" height="50px" />-->
+                </td>
+                <td style="line-height:40px;padding:5px;">
+                    <select id="entryFilter" name="entryFilter" style="width: 160px;">
+                        <apex:repeat value="{!filterOptions}" var="opt">
+                            <option value="{!opt.value}">{!opt.label}</option>
+                        </apex:repeat>
+                    </select>
+                    <apex:outputText style="font-size:24px;padding-left:10px;" value="Metrics" />
+                </td>
+                <td style="line-height:40px;padding:5px;text-align:right;">
+                    <select id="monthFilter" name="monthFilter" value="{!timeframe}" class="monthFilter" style="width: 180px;">
+                        <apex:repeat value="{!monthOptions}" var="opt">
+                            <option value="{!opt.value}" >{!opt.label}</option>
+                        </apex:repeat>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="sfPageBlock">
+        <apex:pageBlock id="pageBlock">
+            <apex:pagemessages id="pageMessages" />
+            <table class="table">
+                <thead class="columnHeader">
+                    <th style="min-width:180px;">
+                        Metric Name
+                    </th>
+                    <th style="text-align:right;padding-right:30px;min-width:120px;display:none;">
+                        Target
+                    </th>
+                    <th style="text-align:right;padding-right:30px;min-width:120px;">
+                        Value
+                    </th>
+                    <th style="text-align:right;padding-right:30px;min-width:110px;" >
+                        Achievement
+                    </th>
+                    <th style="text-align:right;padding-right:30px;min-width:140px;display:none;">
+                        Previous Month
+                    </th>
+                    <th style="text-align:right;padding-right:20px;min-width:120px;">
+                        Change from Prev
+                    </th>
+                    <th style="min-width:180px;" class="sourceContainer">
+                        Data Source
+                    </th>
+                    <th colspan="2" style="min-width:360px;" class="chatterContainer">
+                        Recent Chatter
+                    </th>
+<!--
+                    <apex:outputPanel rendered="{!$ObjectType.Scorecard_Entry__c.updateable}">
+                    <th>
+                        Action
+                    </th>
+                    </apex:outputPanel>
+ -->
+                </thead>
+                <tbody>
+                <apex:repeat value="{!allRows}" var="pr">
+                    <tr class="dataRow level{!TEXT(pr.level)}" data-filter="{!pr.category}" data-key="{!pr.isKey}" data-id="{!pr.entry.Id}" data-name="{!pr.entry.Name}" data-numtype="{!pr.entryType}" >
+                        <td class="titleContainer" style="min-width:120px;">
+                                <div class="entryTitle">
+                                    <a href="{!URLFOR($Action.Scorecard_Entry__c.View, pr.entry.id)}" ><span data-field="Metric__c">{!pr.entry.metric__c}</span></a>
+                                </div>
+                                <div data-field="Description__c">{!pr.entry.description__c}</div>
+                        </td>
+                        <td class="valContainer" style="min-width:120px; display:none;">
+                            <apex:outputPanel layout="inline" html-data-field="Forecast_Amount__c" rendered="{!pr.entryType='currency'}" style="padding-top:3px;">
+                                <apex:outputText value="{0,number,$#,##0}" >
+                                    <apex:param value="{!pr.entry.Forecast_Amount__c}" />
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="inline" html-data-field="Forecast_Number__c" rendered="{!pr.entryType='number'}" style="padding-top:3px;">
+                                <apex:outputField value="{!pr.entry.Forecast_Number__c}" />
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="inline" html-data-field="Forecast_Percent__c" rendered="{!pr.entryType='percent'}" style="padding-top:3px;">
+                                <apex:outputField value="{!pr.entry.Forecast_Percent__c}" />                        
+                            </apex:outputPanel>
+                        </td>
+                        <td class="valContainer" style="min-width:120px;">
+                            <apex:outputPanel layout="inline" html-data-field="Actual_Amount__c" rendered="{!pr.entryType='currency'}" style="padding-top:3px;">
+                                <apex:outputText value="{0,number,$#,##0}">
+                                    <apex:param value="{!pr.entry.Actual_Amount__c}" />
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="inline" html-data-field="Actual_Number__c" rendered="{!pr.entryType='number'}" style="padding-top:3px;">
+                                <apex:outputField value="{!pr.entry.Actual_Number__c}" />
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="inline" html-data-field="Actual_Percent__c" rendered="{!pr.entryType='percent'}" style="padding-top:3px;">
+                                <apex:outputField value="{!pr.entry.Actual_Percent__c}" />
+                            </apex:outputPanel>                             
+<!--                            
+                            <apex:outputPanel rendered="{!NOT(AND(ISBLANK(pr.entry.Forecast_Amount__c),ISBLANK(pr.entry.Forecast_Number__c),ISBLANK(pr.entry.Forecast_Percent__c)))}" styleclass="forecast">
+                                <span class="forecastSpan">(Target:&nbsp;
+                                    <apex:outputPanel layout="inline" html-data-field="Forecast_Amount__c" rendered="{!pr.entryType='currency'}" style="padding-top:3px;">
+                                        <apex:outputText value="{0,number,$#,##0}" >
+                                            <apex:param value="{!pr.entry.Forecast_Amount__c}" />
+                                        </apex:outputText>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel layout="inline" html-data-field="Forecast_Number__c" rendered="{!pr.entryType='number'}" style="padding-top:3px;">
+                                        <apex:outputField value="{!pr.entry.Forecast_Number__c}" />
+                                    </apex:outputPanel>
+                                    <apex:outputPanel layout="inline" html-data-field="Forecast_Percent__c" rendered="{!pr.entryType='percent'}" style="padding-top:3px;">
+                                        <apex:outputField value="{!pr.entry.Forecast_Percent__c}" />
+                                    </apex:outputPanel>)</span>                                 
+                                <a href="#" rel="popover" title="Target Value" style="padding:0;" >
+                                    <apex:image value="{!URLFOR($Resource.status_icons, 
+                                        '/status_icons/16/' + pr.entry.Entry_Color__c + '.png')}" />
+                                </a>
+                            </apex:outputPanel>
+-->
+                        </td>
+                        <td class="valContainer" style="min-width:110px;">
+                            <apex:outputPanel rendered="{!NOT(ISBLANK(pr.entry.Percent_of_Goal__c))}" styleclass="forecast" >
+                                <a href="#" rel="popover" title="Target vs. Actual" style="padding:0;" data-placement="bottom" data-html="true" >
+                                    <apex:outputField value="{!pr.entry.Percent_of_Goal__c}" />                             
+                                    <apex:image value="{!URLFOR($Resource.status_icons, 
+                                        '/status_icons/16/' + pr.entry.Entry_Color__c + '.png')}" />
+                                </a>
+                            </apex:outputPanel>
+                        </td>
+                        <td class="valContainer" style="min-width:140px; display:none;">
+                            <apex:outputPanel layout="inline" html-data-field="Previous_Amount__c" rendered="{!pr.entryType='currency'}" style="padding-top:3px;">
+                                <apex:outputText value="{0,number,$#,##0}" >
+                                    <apex:param value="{!pr.entry.Previous_Amount__c}" />
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="inline" html-data-field="Previous_Number__c" rendered="{!pr.entryType='number'}" style="padding-top:3px;">
+                                <apex:outputField value="{!pr.entry.Previous_Number__c}" />
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="inline" html-data-field="Previous_Percent__c" rendered="{!pr.entryType='percent'}" style="padding-top:3px;">
+                                <apex:outputField value="{!pr.entry.Previous_Percent__c}" />                        
+                            </apex:outputPanel>
+                        </td>
+                        <td class="valContainer" style="min-width:120px;">
+                            <apex:outputPanel layout="inline" rendered="{!NOT(ISNULL(pr.entry.Percent_Change__c))}" styleclass="pctChange">
+                                <a href="#" rel="popover" title="Change from Previous Month" style="padding:0;" data-placement="bottom" data-html="true" >
+                                    <apex:outputField value="{!pr.entry.Percent_Change__c}" />
+                                    <apex:image value="{!URLFOR($Resource.status_icons, 
+                                        'status_icons' + pr.entry.Change_Indicator__c + '.png')}" />
+                                    </a>
+                            </apex:outputPanel>
+                        </td>
+                        <td class="sourceContainer" style="min-width:140px;">
+                            <span data-field="Source__c" >
+                                <apex:outputText value="{!pr.entry.Source__c}" />
+                            </span>
+                            <apex:outputPanel rendered="{!AND(NOT(ISBLANK(pr.entry.Source_Link__c)), NOT(ISBLANK(pr.entry.Source__c)))}">
+                                <br />
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!NOT(ISBLANK(pr.entry.Source_Link__c))}" >
+                                <a target="_blank" data-field="Source_Link__c" href="{!pr.entry.Source_Link__c}">View data source</a>
+                            </apex:outputPanel>
+                        </td>
+                        <td class="feedPhoto" >
+                            <apex:image rendered="{!NOT(ISNULL(pr.postUser))}" url="{!URLFOR(pr.postUser.SmallPhotoUrl)}" />
+                        </td>
+                        <td class="chatterContainer" style="min-width:300px;">
+                            <apex:outputPanel styleclass="feedUsername" rendered="{!NOT(ISNULL(pr.post))}">
+                                <apex:outputLink value="{!baseURL + '/' + pr.post.createdBy.Id}">
+                                    {!pr.postUser.firstName}&nbsp;{!pr.postUser.LastName}   
+                                </apex:outputLink>
+                            </apex:outputPanel>
+                            <div class="feedBody" >
+                                <a data-url="{!URLFOR('/apex/ChatterFeed?id='+pr.entry.id)}" 
+                                    data-toggle="modal" data-target="#chatterBox" aria-hidden="true">
+
+                                    <apex:outputField rendered="{!NOT(ISNULL(pr.post))}" value="{!pr.post.body}" />
+                                    <apex:outputText rendered="{!ISNULL(pr.post)}" value="No Chatter Posts" />
+                                </a>
+                            </div>
+                            <div class="feedDate">
+                                <apex:outputPanel >
+                                    <apex:outputField value="{!pr.post.createdDate}" />
+                                    &nbsp;
+                                </apex:outputPanel>
+                                <a data-url="{!URLFOR('/apex/ChatterFeed?id='+pr.entry.id)}" 
+                                    data-toggle="modal" data-target="#chatterBox" aria-hidden="true">View entry feed</a>
+                            </div>
+                        </td>
+<!--                        
+                        <apex:outputPanel rendered="{!$ObjectType.Scorecard_Entry__c.updateable}">
+                        <td style="text-align:right;vertical-align:middle;" >
+                            <a class="btn btn-small editButton" href="#" data-toggle="modal" data-target="#editBox" aria-hidden="true"><i class="icon-pencil"></i></a>
+                        </td>
+                        </apex:outputPanel>
+ -->
+                    </tr>
+                
+                </apex:repeat>
+                </tbody>
+            </table>
+
+            <div id="chatterBox" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4>Chatter Feed</h4>
+              </div>
+              <div class="modal-body">
+                    <iframe class="modal-iframe" frameborder="0" hspace="0" scrolling="auto"></iframe>
+              </div>
+            </div>
+
+<!-- 
+            <div id="editBox" class="modal hide in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="width:680px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="form-heading">Edit scorecard entry</h4>
+                </div>
+                <div class="modal-body form">
+                    <div style="display:inline-block; padding-right:12px; vertical-align:top;">
+                        <label>Metric Name</label>
+                        <input name="Metric__c" type="text" class="input-large"></input>
+                        <label>Description</label>
+                        <textarea name="Description__c" type="text" style="height:90px;" class="input-large"></textarea>
+                    </div>
+                    <div style="display:inline-block; padding-right:12px; vertical-align:top;">
+                        <label>Value</label>
+                        <input name="Actual_Amount__c" type="text" class="input-medium number" data-numtype="currency"></input>
+                        <input name="Actual_Number__c" type="text" class="input-medium number" data-numtype="number"></input>
+                        <input name="Actual_Percent__c" type="text" class="input-medium number" data-numtype="percent"></input>
+                        <label>Target</label>
+                        <input name="Forecast_Amount__c" type="text" class="input-medium number" data-numtype="currency"></input>
+                        <input name="Forecast_Number__c" type="text" class="input-medium number" data-numtype="number"></input>
+                        <input name="Forecast_Percent__c" type="text" class="input-medium number" data-numtype="percent"></input>
+                    </div>
+                    <div style="display:inline-block; vertical-align:top;">
+                        <label>Source</label>
+                        <input id="entrySource" name="Source__c" type="text" class="input-large"></input>
+                        <label>Source Link</label>
+                        <input id="entrySourceLink" name="Source_Link__c" type="text" class="input-large"></input>
+               </div>
+ -->                                
+<!-- FOR PROJECTS   
+                    <div class="btn-group">
+                    <button class="btn dropdown-toggle" data-toggle="dropdown"><apex:image value="{!URLFOR($Resource.status_icons, '/status_icons/16/Red.png')}" /> <span class="caret"></span></button>
+                 <ul class="dropdown-menu">
+                      <li><apex:image value="{!URLFOR($Resource.status_icons, '/status_icons/16/Red.png')}" /></li>
+                      <li><apex:image value="{!URLFOR($Resource.status_icons, '/status_icons/16/Yellow.png')}" /></li>
+                      <li><apex:image value="{!URLFOR($Resource.status_icons, '/status_icons/16/Green.png')}" /></li>
+                    </ul>
+                 </div>
+ -->
+<!-- 
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
+                    <a href="#" class="btn btn-primary" id="saveButton">Save changes</a>
+                </div>                      
+            </div>
+
+            <div id="chartBox" class="modal fade hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="form-heading">Metric History</h4>
+              </div>
+              <div id="chartDiv" class="modal-body">
+              </div>
+            </div>
+ -->
+        </apex:pageBlock>
+        </div>
+    </div>
+</apex:page>

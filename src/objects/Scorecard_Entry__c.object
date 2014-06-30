@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Monthly forecast and actual values for populating visual scorecard and analytics.</description>
+    <enableActivities>false</enableActivities>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Actual_Amount__c</fullName>
+        <externalId>false</externalId>
+        <label>Actual Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Actual_Number__c</fullName>
+        <externalId>false</externalId>
+        <label>Actual Number</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Actual_Percent__c</fullName>
+        <externalId>false</externalId>
+        <label>Actual Percent</label>
+        <precision>17</precision>
+        <required>false</required>
+        <scale>1</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Change_From_Previous__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF (AND( NOT(ISNULL(Previous_Amount__c )), NOT(ISNULL(Actual_Amount__c))), 
+Actual_Amount__c - Previous_Amount__c, 
+IF (AND( NOT(ISNULL(Previous_Percent__c )), NOT(ISNULL(Actual_Percent__c))), 
+(Actual_Percent__c - Previous_Percent__c), 
+IF (AND( NOT(ISNULL(Previous_Number__c )), NOT(ISNULL(Actual_Number__c))), 
+(Actual_Number__c - Previous_Number__c), 
+NULL)))</formula>
+        <label>Change from Previous</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>1</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Change_Indicator__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(Change_From_Previous__c = 0, &quot;/16/Gray&quot;, 
+IF(AND(ISPICKVAL(Goal_Type__c, &quot;Above Forecast&quot;), Change_From_Previous__c &gt; 0),&quot;/triangle/up/16/Green&quot;, 
+IF(AND(ISPICKVAL(Goal_Type__c, &quot;Below Forecast&quot;), Change_From_Previous__c &lt; 0),&quot;/triangle/down/16/Green&quot;, 
+IF(AND(ISPICKVAL(Goal_Type__c, &quot;Above Forecast&quot;), Change_From_Previous__c &lt; 0),&quot;/triangle/down/16/Red&quot;, 
+IF(AND(ISPICKVAL(Goal_Type__c, &quot;Below Forecast&quot;), Change_From_Previous__c &gt; 0),&quot;/triangle/up/16/Red&quot;, 
+NULL)))))</formula>
+        <label>Change Indicator</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Entry_Color__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(ISBLANK(Percent_of_Goal__c), &quot;Gray&quot;, 
+IF(OR(AND(ISPICKVAL(Goal_Type__c, &quot;Above Forecast&quot;), Percent_of_Goal__c &gt;= 1),AND(ISPICKVAL(Goal_Type__c, &quot;Below Forecast&quot;), Percent_of_Goal__c &lt; 1)), &quot;Green&quot;, 
+IF(OR(AND(ISPICKVAL(Goal_Type__c, &quot;Above Forecast&quot;), Percent_of_Goal__c &gt; 0.80),AND(ISPICKVAL(Goal_Type__c, &quot;Below Forecast&quot;), Percent_of_Goal__c &lt; 1.2)), &quot;Yellow&quot;, 
+&quot;Red&quot;)))</formula>
+        <label>Entry Color</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Forecast_Amount__c</fullName>
+        <externalId>false</externalId>
+        <label>Forecast Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Forecast_Number__c</fullName>
+        <externalId>false</externalId>
+        <label>Forecast Number</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Forecast_Percent__c</fullName>
+        <externalId>false</externalId>
+        <label>Forecast Percent</label>
+        <precision>17</precision>
+        <required>false</required>
+        <scale>1</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Goal_Type__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Sometimes more is better, sometimes less.</inlineHelpText>
+        <label>Goal Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Above Forecast</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Below Forecast</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Key_Metric__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>If checked, this metric displays in the default scorecard group, &quot;Key.&quot;</inlineHelpText>
+        <label>Key Metric</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Metric_Type__c</fullName>
+        <externalId>false</externalId>
+        <label>Metric Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Sales</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Programs</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Finance &amp; Ops</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Philanthropy</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Technology</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Grants</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>AOV</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Metric_Unique_Key__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF( ISNULL(Scorecard_Date__c), NULL, 
+BLANKVALUE(TEXT(Parent__r.Parent__r.Parent__r.Parent__r.Parent__r.Metric_Type__c),
+BLANKVALUE(TEXT(Parent__r.Parent__r.Parent__r.Parent__r.Metric_Type__c),
+BLANKVALUE(TEXT(Parent__r.Parent__r.Parent__r.Metric_Type__c),
+BLANKVALUE(TEXT(Parent__r.Parent__r.Metric_Type__c),
+BLANKVALUE(TEXT(Parent__r.Metric_Type__c), TEXT(Metric_Type__c)))))) &amp; &quot; | &quot; &amp; 
+Parent__r.Parent__r.Parent__r.Parent__r.Parent__r.Metric__c &amp; &quot; | &quot; &amp; 
+Parent__r.Parent__r.Parent__r.Parent__r.Metric__c &amp; &quot; | &quot; &amp; 
+Parent__r.Parent__r.Parent__r.Metric__c &amp; &quot; | &quot; &amp; 
+Parent__r.Parent__r.Metric__c &amp; &quot; | &quot; &amp; 
+Parent__r.Metric__c &amp; &quot; | &quot; &amp; 
+Metric__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>For any dated metric, key value that identifies all records representing the same metric (regardless of date).</inlineHelpText>
+        <label>Metric Unique Key</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Metric__c</fullName>
+        <externalId>false</externalId>
+        <label>Metric</label>
+        <length>100</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Omit_from_Scorecard__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <inlineHelpText>Do not show this metric on the scorecard page.</inlineHelpText>
+        <label>Omit from Scorecard</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Parent__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Parent</label>
+        <referenceTo>Scorecard_Entry__c</referenceTo>
+        <relationshipLabel>Scorecard Entries</relationshipLabel>
+        <relationshipName>Child_Entries</relationshipName>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Percent_Change__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(OR(Change_From_Previous__c = NULL, 
+NULLVALUE(Previous_Amount__c,  NULLVALUE(Previous_Number__c, NULLVALUE(Previous_Percent__c, 0))) = 0),
+NULL, IF(ISNULL(Actual_Percent__c),
+Change_From_Previous__c / ABS(NULLVALUE(Previous_Amount__c, NULLVALUE(Previous_Number__c,Previous_Percent__c))), 
+Change_From_Previous__c))</formula>
+        <label>Percent Change</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>1</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Percent_of_Goal__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF (AND( NOT(ISBLANK(Forecast_Amount__c )), Forecast_Amount__c != 0, NOT(ISBLANK(Actual_Amount__c))),
+(Actual_Amount__c / Forecast_Amount__c),
+IF (AND( NOT(ISBLANK(Forecast_Percent__c )), Forecast_Percent__c != 0, NOT(ISBLANK(Actual_Percent__c))),
+(Actual_Percent__c / Forecast_Percent__c),
+ IF (AND( NOT(ISBLANK(Forecast_Number__c )), Forecast_Number__c != 0, NOT(ISBLANK(Actual_Number__c))),
+(Actual_Number__c / Forecast_Number__c),
+ NULL)))</formula>
+        <label>Percent of Goal</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>1</scale>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Previous_Amount__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Amount from the most recent matching entry.  Filled by trigger on create, but you can update by clicking the Update Previous Values button.</inlineHelpText>
+        <label>Previous Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Previous_Number__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Amount from the most recent matching entry. Filled by trigger on create, but you can update by clicking the Update Previous Values button.</inlineHelpText>
+        <label>Previous Number</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Previous_Percent__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Amount from the most recent matching entry. Filled by trigger on create, but you can update by clicking the Update Previous Values button.</inlineHelpText>
+        <label>Previous Percent</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>1</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>Previous_Values_JSON__c</fullName>
+        <externalId>false</externalId>
+        <inlineHelpText>Serialized data indicating the most recent year&apos;s worth of matching metrics.</inlineHelpText>
+        <label>Previous Values JSON</label>
+        <length>32768</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Scorecard_Date__c</fullName>
+        <externalId>false</externalId>
+        <label>Scorecard Date</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Scorecard_Sort_Order__c</fullName>
+        <externalId>false</externalId>
+        <label>Scorecard Sort Order</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Source_Link__c</fullName>
+        <externalId>false</externalId>
+        <label>Source Link</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>Source__c</fullName>
+        <externalId>false</externalId>
+        <label>Source</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Subcategory__c</fullName>
+        <externalId>false</externalId>
+        <label>Region / Subcategory</label>
+        <length>40</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Scorecard Entry</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Actual_Amount__c</columns>
+        <columns>Actual_Number__c</columns>
+        <columns>Actual_Percent__c</columns>
+        <columns>Previous_Amount__c</columns>
+        <columns>Previous_Number__c</columns>
+        <columns>Previous_Percent__c</columns>
+        <columns>Percent_Change__c</columns>
+        <columns>Change_Indicator__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>All1</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <label>Scorecard Value Name</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Scorecard Entries</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>
